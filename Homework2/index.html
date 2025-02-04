@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Classroom</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/loaders/OBJLoader.js"></script>
+
+    <script>
+      
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+   
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableRotate = false; 
+        controls.enablePan = false;  
+        controls.enableZoom = false; 
+
+  
+        const ambientLight = new THREE.AmbientLight(0x404040, 3.2); 
+        scene.add(ambientLight);
+
+        
+        const overheadLight = new THREE.DirectionalLight(0xFFFF00, 0.5); 
+        overheadLight.position.set(0, 9, 0); 
+        overheadLight.target.position.set(0, 0, 0);  
+        scene.add(overheadLight);
+        scene.add(overheadLight.target);
+
+    
+        const floorGeometry = new THREE.PlaneGeometry(30, 30); 
+        const floorMaterial = new THREE.MeshStandardMaterial({ color: 0xdeb887 }); 
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = - Math.PI / 2;
+        floor.position.y = -10; 
+        scene.add(floor);
+
+        const ceiling = new THREE.Mesh(floorGeometry, floorMaterial);
+        ceiling.rotation.x = Math.PI / 2; 
+        ceiling.position.y = 8; 
+        scene.add(ceiling);
+
+      
+        const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, side: THREE.DoubleSide }); 
+
+      
+        const leftWallGeometry = new THREE.PlaneGeometry(30, 20); 
+        const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
+        leftWall.rotation.y = Math.PI / 2;
+        leftWall.position.x = -15;
+        scene.add(leftWall);
+
+        
+        const rightWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
+        rightWall.rotation.y = Math.PI / 2;
+        rightWall.position.x = 15; 
+        scene.add(rightWall);
+
+    
+        const frontWallMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, side: THREE.DoubleSide });
+        const frontWallGeometry = new THREE.PlaneGeometry(30, 20);
+        const frontWall = new THREE.Mesh(frontWallGeometry, frontWallMaterial);
+        frontWall.position.z = -15;
+        scene.add(frontWall);
+
+        const backWallMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, side: THREE.DoubleSide });
+        const backWallGeometry = new THREE.PlaneGeometry(30, 20);
+        const backWall = new THREE.Mesh(backWallGeometry, backWallMaterial);
+        backWall.position.z = 15;
+        scene.add(backWall);
+
+
+        const loader = new THREE.OBJLoader();
+        let deskModel;
+
+        loader.load('/models/deskModel.obj', (object) => {
+            deskModel = object;
+
+           
+            const deskMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 }); 
+            deskModel.traverse((child) => {
+                if (child.isMesh) child.material = deskMaterial;
+            });
+
+            
+            deskModel.scale.set(0.60, 0.60, 0.60); 
+
+            
+            const deskPositions = [
+                { x: -8, z: 5 },  
+                { x: 8, z: 5 },
+                { x: -8, z: -5 },
+                { x: 8, z: -5 }
+            ];
+
+            deskPositions.forEach((position) => {
+                const deskClone = deskModel.clone();
+                deskClone.position.set(position.x, -10.0, position.z); 
+                scene.add(deskClone);
+            });
+
+            console.log("Model loaded successfully!");
+
+        }, undefined, (error) => {
+            console.error("Model loading error:", error);
+        });
+
+      
+        const whiteboardGeometry = new THREE.PlaneGeometry(18, 10); 
+        const whiteboardMaterial = new THREE.MeshStandardMaterial({ color: 0x006400 }); 
+        const whiteboard = new THREE.Mesh(whiteboardGeometry, whiteboardMaterial);
+        whiteboard.position.set(0, 0.8, -14.9); 
+        scene.add(whiteboard);
+
+        
+        const windowGeometry = new THREE.PlaneGeometry(8, 10); 
+        const windowMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x87CEEB, 
+            transparent: true,
+            opacity: 1 
+        });
+
+        
+        const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
+        window1.position.set(-14.9, 1, 6); 
+        window1.rotation.set(0, Math.PI / 2, 0); 
+        scene.add(window1);
+
+      
+        const window2 = new THREE.Mesh(windowGeometry, windowMaterial);
+        window2.position.set(-14.9, 1, -6); 
+        window2.rotation.set(0, Math.PI / 2, 0); 
+        scene.add(window2);
+
+       
+        camera.position.set(14, 7, 14);
+        camera.lookAt(new THREE.Vector3(0, 0, 0)); 
+        camera.rotation.x = -Math.PI / 4; 
+
+       
+        controls.enableDamping = true; 
+        controls.dampingFactor = 0.15;
+        controls.maxDistance = 50; 
+        controls.minDistance = 0;
+        controls.target.set(0, 0, 0); 
+
+        
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+
+       
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
