@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Living Room</title>
+    <style> 
+        body { margin: 0; overflow: hidden; } 
+    </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        // Setup Scene, Camera, and Renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 1.8, 6);  // Raised camera for a better living room view
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+
+        // Add Orbit Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 2;
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 5, 5); // Adjust light position
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        // Create Room with 4 Walls, Ceiling, and Floor
+        function createRoom() {
+            const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x808080 }); // Standard gray walls
+
+            // Floor
+            const floorGeometry = new THREE.PlaneGeometry(8, 8);
+            const floor = new THREE.Mesh(floorGeometry, wallMaterial);
+            floor.rotation.x = -Math.PI / 2; // Rotate to make it horizontal
+            floor.position.y = -0.5; // Position below
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            // Ceiling
+            const ceilingGeometry = new THREE.PlaneGeometry(8, 8);
+            const ceiling = new THREE.Mesh(ceilingGeometry, wallMaterial);
+            ceiling.rotation.x = Math.PI / 2; // Rotate to make it horizontal
+            ceiling.position.y = 3.5; // Position above
+            ceiling.receiveShadow = true;
+            scene.add(ceiling);
+
+            // Walls
+            const wallHeight = 4;
+
+            // Front Wall
+            const frontWallGeometry = new THREE.PlaneGeometry(8, wallHeight);
+            const frontWall = new THREE.Mesh(frontWallGeometry, wallMaterial);
+            frontWall.position.z = -4.0; // Place it in front
+            frontWall.position.y = 1.5; // Centered vertically
+            frontWall.receiveShadow = true;
+            scene.add(frontWall);
+
+            // Back Wall
+            const backWallGeometry = new THREE.PlaneGeometry(8, wallHeight);
+            const backWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+            backWall.position.z = 4; // Place it behind
+            backWall.position.y = 1.5;
+            backWall.receiveShadow = true;
+            scene.add(backWall);
+
+            // Left Wall
+            const leftWallGeometry = new THREE.PlaneGeometry(8, wallHeight);
+            const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
+            leftWall.rotation.y = Math.PI / 2; // Rotate to face left
+            leftWall.position.x = -4.0;
+            leftWall.position.y = 1.5;
+            leftWall.receiveShadow = true;
+            scene.add(leftWall);
+
+            // Right Wall
+            const rightWallGeometry = new THREE.PlaneGeometry(8, wallHeight);
+            const rightWall = new THREE.Mesh(rightWallGeometry, wallMaterial);
+            rightWall.rotation.y = -Math.PI / 2; // Rotate to face right
+            rightWall.position.x = 4;
+            rightWall.position.y = 1.5;
+            rightWall.receiveShadow = true;
+            scene.add(rightWall);
+
+           
+        }
+
+    
+
+        // Function to Load and Position 3D Models
+        function loadModel(path, position, scale, rotation) {
+            const loader = new THREE.GLTFLoader();
+            loader.load(path, (gltf) => {
+                const model = gltf.scene;
+                console.log('Model Loaded:', model); // Check if model is loaded
+                model.position.set(position.x, position.y, position.z);
+                model.scale.set(scale.x, scale.y, scale.z);
+                model.rotation.y = rotation;
+                model.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+                scene.add(model);
+            }, undefined, (error) => {
+                console.error(`Error loading ${path}:`, error);
+            });
+        }
+
+        // Load Models with Realistic Sizes
+        loadModel('models/sofa.gltf', { x: 0, y: -0.45, z: -3.20 }, { x: 0.040, y: 0.040, z: 0.02 }, 0); // Sofa
+      
+        loadModel('models/smart_tv.glb', { x: 0, y: 0, z: 3.65 }, { x: 0.08, y: 0.08, z: 0.08 }, 4.70); // Smart TV
+
+        loadModel('models/tv_table.glb', { x: -0.35, y: -0.5, z: 3.65 }, { x: 2.4, y: 1, z: 0.8 }, 0); // Table
+
+        loadModel('models/book_shelf.glb', { x: -3.90, y: -0.5, z: -3.90 }, { x: 1.2, y: 1.2, z: 0.7 }, Math.PI / 2); // Bookshelf
+
+        loadModel('models/door.glb', { x: -3.95, y: -0.60, z: 2.3 }, { x: 1.88, y: 1.88, z: 0.7 }, Math.PI / 2); // Door
+
+        loadModel('models/rug.glb', { x: 0, y: -0.5, z: 0 }, { x: 1.8, y: 1.8, z: 1.88 },0); // Rug
+
+        loadModel('models/wall_art.glb', { x: 0, y: 1.2, z: -3.99 }, { x: 3.5, y: 3, z: 1 }, 0); // Wall Art
+
+        loadModel('models/curtains.glb', { x: 3.90, y: 0, z: 0.10 }, { x: 1, y: 1, z: 1 }, 0); // Curtains
+
+        loadModel('models/window.glb', { x: 0.65, y: -1.7, z: 0.90 }, { x: 0.4, y: 0.5, z: 0.3 }, 0); // Window
+        
+        loadModel('models/window.glb', { x: 0.65, y: -1.7, z: -0.15 }, { x: 0.4, y: 0.5, z: 0.3 }, 0); // Window
+
+        loadModel('models/window.glb', { x: 0.65, y: -1.7, z: -2.60 }, { x: 0.4, y: 0.5, z: 0.3 }, 0); // Window
+        
+        loadModel('models/window.glb', { x: 0.65, y: -1.7, z: -3.65 }, { x: 0.4, y: 0.5, z: 0.3 }, 0); // Window
+
+
+
+
+        loadModel('models/chair.glb', { x: 2.75, y: 0, z: -2 }, { x: 2, y: 2, z: 2 }, 5); // Chair
+
+        loadModel('models/table.glb', { x: 0.15, y: -0.5, z: -1.5 }, { x: 1.3, y: 1.3, z: 1.2 }, 0); // Table
+
+        loadModel('models/lamp.glb', { x: -1.70, y: 2.95, z: 0.5 }, { x: 0.0009, y: 0.0009, z: 0.0009 }, 0); // Table
+
+
+    
+
+        // Create the room and load models
+        createRoom();
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update(); // Update controls
+            renderer.render(scene, camera); // Render the scene
+        }
+        animate();
+    </script>
+</body>
+</html>
