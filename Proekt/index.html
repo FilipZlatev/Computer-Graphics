@@ -107,6 +107,13 @@
                 });
 
                 scene.add(model);
+
+                if (name === 'door') {
+                    door = model;
+                }
+
+
+
             }, undefined, (error) => {
                 console.error(`Error loading ${path}:`, error);
             });
@@ -121,7 +128,7 @@
 
       loadModel('models/book_shelf.glb', { x: -3.90, y: -0.5, z: -3.90 }, { x: 1.2, y: 1.2, z: 0.7 }, Math.PI / 2); // Bookshelf
 
-      loadModel('models/door.glb', { x: -3.95, y: -0.60, z: 2.3 }, { x: 1.88, y: 1.88, z: 0.7 }, Math.PI / 2); // Door
+      loadModel('models/door.glb', { x: -3.95, y: -0.60, z: 2.3 }, { x: 1.88, y: 1.88, z: 0.7 }, Math.PI / 2, 'door'); // Door
 
       loadModel('models/rug.glb', { x: 0, y: -0.5, z: 0 }, { x: 1.8, y: 1.8, z: 1.88 },0); // Rug
 
@@ -185,9 +192,19 @@
                         child.material.opacity = 0.6;  
                     }
                 });
+
+             
             }
+
         }
 
+
+
+
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MOVING WITH ARROWS
+
+       
         window.addEventListener('click', onMouseClick);
 
         // Create an array to hold the draggable objects (models)
@@ -209,7 +226,7 @@
         // Arrow Key Movement
         window.addEventListener('keydown', function(event) {
             if (selectedObject) {
-                let moveAmount = 0.1;
+                let moveAmount = 0.2;
                 switch (event.key) {
                     case 'ArrowUp':
                         selectedObject.position.z += moveAmount;
@@ -233,14 +250,47 @@
             }
         });
 
-        // Animation Loop
-        function animate() {
+        
+
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DOOR
+
+
+
+
+ // Function to toggle the door state when F is pressed
+ let doorState = "closed"; // Set the initial state of the door
+
+ function toggleDoor() {
+    if (door) {  // Ensure the door model is loaded
+        if (doorState === "closed") {
+            door.position.set(-3.485, -0.60, 2.3); // Move to open position
+            door.rotation.y = -180;  // Rotate door 90 degrees to the right (or adjust as needed)
+            doorState = "open";
+        } else {
+            door.position.set(-3.95, -0.60, 2.3); // Move to closed position
+            door.rotation.y = Math.PI / 2;   // Reset rotation (closed state)
+            doorState = "closed";
+        }
+    }
+}
+
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'f' || event.key === 'F') {  // Check if 'F' key is pressed
+        toggleDoor();  // Toggle door state on 'F' key press
+    }
+});
+
+// Animation Loop
+function animate() {
             requestAnimationFrame(animate);
+          
             controls.update();
             renderer.render(scene, camera);
         }
 
         animate();
+
     </script>
 </body>
 </html>
