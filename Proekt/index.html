@@ -5,91 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Living Room</title>
     <style> 
-        body { margin: 0; overflow: hidden; } 
-        canvas { display: block; }
+     body { margin: 0; overflow: hidden; } 
+    canvas { display: block; }
+       
+    #camera-controls {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    button {
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 5px;
+    }
+    button:hover {
+        background: rgba(0, 0, 0, 0.9);
+    }
     </style>
 </head>
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/DragControls.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/DragControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/DragControls.js"></script>
 
     <script>
-        // Setup Scene, Camera, and Renderer
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 1.8, 6);
+        camera.position.set(6, 7, 6);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         document.body.appendChild(renderer.domElement);
-
-        // Add Orbit Controls
+   
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.maxPolarAngle = Math.PI / 2;
 
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(5, 5, 5);
-        directionalLight.castShadow = true;
-        scene.add(directionalLight);
 
-        // Create Room with 4 Walls, Ceiling, and Floor
         function createRoom() {
             const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x808080 });
 
-            // Floor
             const floor = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), wallMaterial);
             floor.rotation.x = -Math.PI / 2;
             floor.position.y = -0.5;
             floor.receiveShadow = true;
             scene.add(floor);
 
-            // Ceiling
+
             const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), wallMaterial);
             ceiling.rotation.x = Math.PI / 2;
             ceiling.position.y = 3.5;
             ceiling.receiveShadow = true;
             scene.add(ceiling);
 
-            // Walls
             const wallHeight = 4;
             const wallGeometry = new THREE.PlaneGeometry(8, wallHeight);
 
-            // Front Wall
             const frontWall = new THREE.Mesh(wallGeometry, wallMaterial);
             frontWall.position.set(0, 1.5, -4);
             scene.add(frontWall);
 
-            // Back Wall
             const backWall = new THREE.Mesh(wallGeometry, wallMaterial);
             backWall.position.set(0, 1.5, 4);
             scene.add(backWall);
 
-            // Left Wall
             const leftWall = new THREE.Mesh(wallGeometry, wallMaterial);
             leftWall.rotation.y = Math.PI / 2;
             leftWall.position.set(-4, 1.5, 0);
             scene.add(leftWall);
 
-            // Right Wall
             const rightWall = new THREE.Mesh(wallGeometry, wallMaterial);
             rightWall.rotation.y = -Math.PI / 2;
             rightWall.position.set(4, 1.5, 0);
             scene.add(rightWall);
         }
 
-        // Load Models
         function loadModel(path, position, scale, rotation, name) {
             const loader = new THREE.GLTFLoader();
             loader.load(path, (gltf) => {
@@ -97,7 +103,7 @@
                 model.position.set(position.x, position.y, position.z);
                 model.scale.set(scale.x, scale.y, scale.z);
                 model.rotation.y = rotation;
-                model.name = name; // Set a name for identification
+                model.name = name; 
 
                 model.traverse((child) => {
                     if (child.isMesh) {
@@ -112,15 +118,12 @@
                     door = model;
                 }
 
-
-
             }, undefined, (error) => {
                 console.error(`Error loading ${path}:`, error);
             });
         }
 
-        // Load Models
-        loadModel('models/sofa.gltf', { x: 0, y: -0.45, z: -3.20 }, { x: 0.040, y: 0.040, z: 0.02 }, 0); // Sofa
+     loadModel('models/sofa.gltf', { x: 0, y: -0.45, z: -3.20 }, { x: 0.040, y: 0.040, z: 0.02 }, 0); // Sofa
       
       loadModel('models/smart_tv.glb', { x: 0, y: 0, z: 3.65 }, { x: 0.08, y: 0.08, z: 0.08 }, 4.70); // Smart TV
 
@@ -154,68 +157,76 @@
 
       loadModel('models/table.glb', { x: 0.15, y: -0.5, z: -1.5 }, { x: 1.3, y: 1.3, z: 1.2 }, 0); // Table
 
-      loadModel('models/lamp.glb', { x: -1.70, y: 2.95, z: 0.5 }, { x: 0.0009, y: 0.0009, z: 0.0009 }, 0); // Table
-        // Create Room
+      loadModel('models/lamp.glb', { x: -1.70, y: 2.95, z: 0.5 }, { x: 0.0009, y: 0.0009, z: 0.0009 }, 0); // Lamp
+
+      
         createRoom();
 
-        // Raycaster for Click Detection
+
+         //  Clicking
+
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let selectedObject = null;
 
         function onMouseClick(event) {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(scene.children, true);
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(scene.children, true);
 
-            if (intersects.length > 0) {
-                const clickedObject = intersects[0].object;
-                const parentObject = clickedObject.parent;
+    if (intersects.length > 0) {
+        const clickedObject = intersects[0].object;
+        const parentObject = clickedObject.parent;
 
-                if (selectedObject) {
-                    selectedObject.traverse((child) => {
-                        if (child.isMesh) {
-                            child.material.transparent = false; 
-                            child.material.emissive.setHex(0x000000); // Remove highlight
-                        }
-                    });
+        if (selectedObject && selectedObject !== parentObject) {
+            selectedObject.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.transparent = false;
+                    child.material.emissive.setHex(0x000000); 
                 }
-
-                selectedObject = parentObject;
-
-                selectedObject.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material.transparent = true; 
-                        child.material.emissive.setHex(0xadd8e6); // Light blue (Hex: #ADD8E6)
-                        child.material.opacity = 0.6;  
-                    }
-                });
-
-             
-            }
-
+            });
         }
 
+        selectedObject = parentObject; 
 
+    
+        selectedObject.traverse((child) => {
+            if (child.isMesh) {
+                child.material.transparent = true;
+                child.material.emissive.setHex(0xADD8E6); 
+                child.material.opacity = 0.6;
+            }
+        });
+    } else {
+        
+        if (selectedObject) {
+            selectedObject.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.transparent = false;
+                    child.material.emissive.setHex(0x000000); 
+                }
+            });
+        }
+        selectedObject = null; 
+    }
+}
 
 
  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// MOVING WITH ARROWS
+ // Arrow Moving
 
        
         window.addEventListener('click', onMouseClick);
 
-        // Create an array to hold the draggable objects (models)
         let draggableObjects = [];
         scene.traverse((child) => {
             if (child.isMesh && ['sofa', 'smart_tv', 'tv_table'].includes(child.name)) {
-                draggableObjects.push(child); // Add only models to the draggableObjects array
+                draggableObjects.push(child); 
             }
         });
 
-        // Define the boundary for dragging (in the x-z plane)
         const boundary = {
             minX: -4,
             maxX: 4,
@@ -223,7 +234,6 @@
             maxZ: 4,
         };
 
-        // Arrow Key Movement
         window.addEventListener('keydown', function(event) {
             if (selectedObject) {
                 let moveAmount = 0.2;
@@ -242,7 +252,6 @@
                         break;
                 }
 
-                // Boundary checks
                 if (selectedObject.position.x < boundary.minX) selectedObject.position.x = boundary.minX;
                 if (selectedObject.position.x > boundary.maxX) selectedObject.position.x = boundary.maxX;
                 if (selectedObject.position.z < boundary.minZ) selectedObject.position.z = boundary.minZ;
@@ -253,44 +262,165 @@
         
 
  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DOOR
+ // Door
 
 
-
-
- // Function to toggle the door state when F is pressed
- let doorState = "closed"; // Set the initial state of the door
+ let doorState = "closed"; 
 
  function toggleDoor() {
-    if (door) {  // Ensure the door model is loaded
+    if (door) {  
         if (doorState === "closed") {
-            door.position.set(-3.485, -0.60, 2.3); // Move to open position
-            door.rotation.y = -180;  // Rotate door 90 degrees to the right (or adjust as needed)
+            door.position.set(-3.485, -0.60, 2.3); 
+            door.rotation.y = -180;  
             doorState = "open";
         } else {
-            door.position.set(-3.95, -0.60, 2.3); // Move to closed position
-            door.rotation.y = Math.PI / 2;   // Reset rotation (closed state)
+            door.position.set(-3.95, -0.60, 2.3); 
+            door.rotation.y = Math.PI / 2;  
             doorState = "closed";
         }
     }
 }
 
 window.addEventListener('keydown', (event) => {
-    if (event.key === 'f' || event.key === 'F') {  // Check if 'F' key is pressed
-        toggleDoor();  // Toggle door state on 'F' key press
+    if (event.key === 'f' || event.key === 'F') {  
+        toggleDoor();  
     }
 });
 
-// Animation Loop
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Light
+
+let floorLampLight = new THREE.PointLight(0xffffff, 0, 10); 
+let floorLampLight2 = new THREE.PointLight(0xffffff, 0, 10); 
+
+floorLampLight.position.set(3, 2.3, -3); 
+floorLampLight2.position.set(3.50, 2.3, 3.50); 
+
+scene.add(floorLampLight);
+scene.add(floorLampLight2);
+
+let isLampOn = false;
+
+function toggleLamp() {
+    if (isLampOn) {
+        isLampOn = false;
+        floorLampLight.intensity = 0; 
+        floorLampLight2.intensity = 0;
+    } else {
+        isLampOn = true;
+        floorLampLight.intensity = 1; 
+        floorLampLight2.intensity = 1; 
+    }
+}
+
+window.addEventListener("keydown", (event) => {
+    if (event.key.toLowerCase() === "e") {  
+        toggleLamp();
+    }
+});
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Ceeling Lamp (Directional Light)
+
+let lampDirectionalLight = new THREE.DirectionalLight(0xffffff, 0);
+lampDirectionalLight.position.set(3, 2, -3); 
+lampDirectionalLight.target.position.set(3, 0, -3); 
+
+scene.add(lampDirectionalLight);
+scene.add(lampDirectionalLight.target);
+
+let isDirectionalLightOn = false;
+
+function toggleDirectionalLight() {
+    if (isDirectionalLightOn) {
+        isDirectionalLightOn = false;
+        lampDirectionalLight.intensity = 0; 
+    } else {
+        isDirectionalLightOn = true;
+        lampDirectionalLight.intensity = 1.2; 
+    }
+}
+
+window.addEventListener("keydown", (event) => {
+    if (event.key.toLowerCase() === "r") {  
+        toggleDirectionalLight();
+    }
+});
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Cameras
+
+
+let corner1Camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+corner1Camera.position.set(3.50, 3.50, 3.50); 
+corner1Camera.lookAt(0, 0, 0); 
+
+let corner2Camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+corner2Camera.position.set(-3.50, 3, 3.50); 
+corner2Camera.lookAt(0, 0, 0); 
+
+let corner3Camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+corner3Camera.position.set(3.50, 3, -3.50);
+corner3Camera.lookAt(0, 0, 0); 
+
+let corner4Camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+corner4Camera.position.set(-3.50, 3, -3.50); 
+corner4Camera.lookAt(0, 0, 0);
+
+let currentCamera = camera;
+
+function setCamera(view) {
+    if (view === "corner1") {
+        currentCamera = corner1Camera;
+    } else if (view === "corner2") {
+        currentCamera = corner2Camera;
+    } else if (view === "corner3") {
+        currentCamera = corner3Camera;
+    } else if (view === "corner4") {
+        currentCamera = corner4Camera;
+    }
+     else if (view === "camera") {
+        currentCamera = camera;
+    }
+}
+
+window.addEventListener("keydown", (event) => {
+    if (event.key === "1") {
+        setCamera("corner1");
+    } else if (event.key === "2") {
+        setCamera("corner2");
+    } else if (event.key === "3") {
+        setCamera("corner3");
+    } else if (event.key === "4") {
+        setCamera("corner4");
+    }
+      else if (event.key === "5") {
+        setCamera("camera");
+    }
+});
+
+
 function animate() {
             requestAnimationFrame(animate);
           
             controls.update();
-            renderer.render(scene, camera);
+            renderer.render(scene, currentCamera);
         }
 
         animate();
 
     </script>
+
+
+<div id="camera-controls">
+    <button onclick="setCamera('corner1')">1. Corner 1 (Front-Left)</button>
+    <button onclick="setCamera('corner2')">2. Corner 2 (Front-Right)</button>
+    <button onclick="setCamera('corner3')">3. Corner 3 (Back-Left)</button>
+    <button onclick="setCamera('corner4')">4. Corner 4 (Back-Right)</button>
+    <button onclick="setCamera('camera')">5. Free Camera</button>
+</div>
+
 </body>
 </html>
