@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/loaders/OBJLoader.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/loaders/GLTFLoader.js"></script>
     <script>
       
         const scene = new THREE.Scene();
@@ -24,25 +24,36 @@
         document.body.appendChild(renderer.domElement);
 
    
+
+
+
+        
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableRotate = false; 
-        controls.enablePan = false;  
-        controls.enableZoom = false; 
+        controls.enableRotate = true; 
+        controls.enablePan = true;  
+        controls.enableZoom = true; 
 
   
         const ambientLight = new THREE.AmbientLight(0x404040, 3.2); 
         scene.add(ambientLight);
 
         
-        const overheadLight = new THREE.DirectionalLight(0xFFFF00, 0.5); 
+        const overheadLight = new THREE.DirectionalLight(0xFFFFFF, 0.2); 
         overheadLight.position.set(0, 9, 0); 
         overheadLight.target.position.set(0, 0, 0);  
         scene.add(overheadLight);
         scene.add(overheadLight.target);
 
-    
+        const textureLoader = new THREE.TextureLoader();
+        const wallTexture = textureLoader.load('textures/sky.jpeg'); 
+        const floorTexture = textureLoader.load('textures/floortexture.jpg'); 
+        const wallsTexture = textureLoader.load('textures/wall.jpg'); 
+
+
+
+
         const floorGeometry = new THREE.PlaneGeometry(30, 30); 
-        const floorMaterial = new THREE.MeshStandardMaterial({ color: 0xdeb887 }); 
+        const floorMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, map: floorTexture }); 
         const floor = new THREE.Mesh(floorGeometry, floorMaterial);
         floor.rotation.x = - Math.PI / 2;
         floor.position.y = -10; 
@@ -54,7 +65,7 @@
         scene.add(ceiling);
 
       
-        const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, side: THREE.DoubleSide }); 
+        const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide, map: wallsTexture }); 
 
       
         const leftWallGeometry = new THREE.PlaneGeometry(30, 20); 
@@ -70,33 +81,34 @@
         scene.add(rightWall);
 
     
-        const frontWallMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, side: THREE.DoubleSide });
+        const frontWallMaterial = new THREE.MeshStandardMaterial({  color: 0xFFFFFF, side: THREE.DoubleSide, map: wallsTexture  });
         const frontWallGeometry = new THREE.PlaneGeometry(30, 20);
         const frontWall = new THREE.Mesh(frontWallGeometry, frontWallMaterial);
         frontWall.position.z = -15;
         scene.add(frontWall);
 
-        const backWallMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, side: THREE.DoubleSide });
+        const backWallMaterial = new THREE.MeshStandardMaterial({  color: 0xFFFFFF, side: THREE.DoubleSide, map: wallsTexture  });
         const backWallGeometry = new THREE.PlaneGeometry(30, 20);
         const backWall = new THREE.Mesh(backWallGeometry, backWallMaterial);
         backWall.position.z = 15;
         scene.add(backWall);
 
 
-        const loader = new THREE.OBJLoader();
-        let deskModel;
+        const loader = new THREE.GLTFLoader();
 
-        loader.load('/models/deskModel.obj', (object) => {
-            deskModel = object;
+loader.load('/models/desk.glb', (gltf) => {
+    const deskModel = gltf.scene;
 
-           
-            const deskMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 }); 
-            deskModel.traverse((child) => {
-                if (child.isMesh) child.material = deskMaterial;
-            });
-
-            
-            deskModel.scale.set(0.60, 0.60, 0.60); 
+    deskModel.traverse((child) => {
+        if (child.isMesh) {
+            if (child.material.map) {
+                child.material.map.needsUpdate = true; 
+            }
+            child.castShadow = true;
+            child.receiveShadow = true;
+        }
+    });
+            deskModel.scale.set(4, 4, 4); 
 
             
             const deskPositions = [
@@ -118,20 +130,82 @@
             console.error("Model loading error:", error);
         });
 
-      
-        const whiteboardGeometry = new THREE.PlaneGeometry(18, 10); 
-        const whiteboardMaterial = new THREE.MeshStandardMaterial({ color: 0x006400 }); 
-        const whiteboard = new THREE.Mesh(whiteboardGeometry, whiteboardMaterial);
-        whiteboard.position.set(0, 0.8, -14.9); 
-        scene.add(whiteboard);
 
+        
+
+loader.load('/models/whiteboard.glb', (gltf) => {
+    const whiteboard = gltf.scene;
+
+    whiteboard.traverse((child) => {
+        if (child.isMesh) {
+            if (child.material.map) {
+                child.material.map.needsUpdate = true;
+            }
+            child.castShadow = true;
+            child.receiveShadow = true;
+        }
+    });
+
+    whiteboard.scale.set(0.1, 0.1, 0.1);  
+    whiteboard.position.set(0, -12, -14.9);  
+
+    scene.add(whiteboard);
+    console.log("Whiteboard model loaded successfully!");
+}, undefined, (error) => {
+    console.error("Error loading whiteboard model:", error);
+});
+
+
+
+loader.load('/models/door_classroom_9_mb.glb', (gltf) => {
+    const door = gltf.scene;
+
+    door.traverse((child) => {
+        if (child.isMesh) {
+            if (child.material.map) {
+                child.material.map.needsUpdate = true;
+            }
+            child.castShadow = true;
+            child.receiveShadow = true;
+        }
+    });
+
+    door.scale.set(6, 6, 6);  
+    door.position.set(0, -10, 14.9);  
+    door.rotation.set = Math.PI / 2;
+
+    scene.add(door);
+    console.log("Door model loaded successfully!");
+}, undefined, (error) => {
+    console.error("Error loading door model:", error);
+});
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+        
         
         const windowGeometry = new THREE.PlaneGeometry(8, 10); 
         const windowMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x87CEEB, 
+            color: 0xffffff, 
+            map: wallTexture, 
+            side: THREE.DoubleSide,
             transparent: true,
             opacity: 1 
         });
+
 
         
         const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
