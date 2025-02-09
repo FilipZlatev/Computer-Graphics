@@ -198,14 +198,14 @@ loader.load('/models/window.glb', (gltf) => {
         }
     });
 
-    // First window
+ 
     const window1 = windowModel.clone();
     window1.scale.set(0.18, 0.18, 0.18);  
     window1.position.set(-15.9, -5, 6);  
     window1.rotation.y -= Math.PI / 6; 
     scene.add(window1);
 
-    // Second window
+
     const window2 = windowModel.clone();
     window2.scale.set(0.18, 0.18, 0.18);  
     window2.position.set(-15.9, -5, -6);  
@@ -216,26 +216,6 @@ loader.load('/models/window.glb', (gltf) => {
 }, undefined, (error) => {
     console.error("Error loading window model:", error);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         
