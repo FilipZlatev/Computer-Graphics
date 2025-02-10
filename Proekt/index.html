@@ -58,22 +58,22 @@
         scene.add(ambientLight);
 
 
+        // Funkcija za Krearinja na soba
         function createRoom() {
             const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x808080 });
-
+            //Pod
             const floor = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), wallMaterial);
             floor.rotation.x = -Math.PI / 2;
             floor.position.y = -0.5;
             floor.receiveShadow = true;
             scene.add(floor);
-
-
+            //Krov
             const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), wallMaterial);
             ceiling.rotation.x = Math.PI / 2;
             ceiling.position.y = 3.5;
             ceiling.receiveShadow = true;
             scene.add(ceiling);
-
+            // 4 Zida
             const wallHeight = 4;
             const wallGeometry = new THREE.PlaneGeometry(8, wallHeight);
 
@@ -96,6 +96,7 @@
             scene.add(rightWall);
         }
 
+        // Modeli
         function loadModel(path, position, scale, rotation, name) {
             const loader = new THREE.GLTFLoader();
             loader.load(path, (gltf) => {
@@ -123,7 +124,7 @@
             });
         }
 
-     loadModel('models/sofa.gltf', { x: 0, y: -0.45, z: -3.20 }, { x: 0.040, y: 0.040, z: 0.02 }, 0); // Sofa
+     loadModel('models/sofa.gltf', { x: 0, y: -0.45, z: -3.20 }, { x: 0.040, y: 0.040, z: 0.02 }, 0,); // Sofa
       
       loadModel('models/smart_tv.glb', { x: 0, y: 0, z: 3.65 }, { x: 0.08, y: 0.08, z: 0.08 }, 4.70); // Smart TV
 
@@ -139,13 +140,13 @@
 
       loadModel('models/curtains.glb', { x: 3.90, y: 0, z: 0.10 }, { x: 1, y: 1, z: 1 }, 0); // Curtains
 
-      loadModel('models/window.glb', { x: 0.65, y: -1.7, z: 0.90 }, { x: 0.4, y: 0.5, z: 0.3 }, 0); // Window
+      loadModel('models/window1.glb', { x: 0.65, y: -1.7, z: 0.90 }, { x: 0.4, y: 0.5, z: 0.3 }, 0); // Window
       
-      loadModel('models/window.glb', { x: 0.65, y: -1.7, z: -0.15 }, { x: 0.4, y: 0.5, z: 0.3 }, 0); // Window
+      loadModel('models/window1.glb', { x: 0.65, y: -1.7, z: -0.15 }, { x: 0.4, y: 0.5, z: 0.3 }, 0); // Window
 
-      loadModel('models/window.glb', { x: 0.65, y: -1.7, z: -2.60 }, { x: 0.4, y: 0.5, z: 0.3 }, 0); // Window
+      loadModel('models/window1.glb', { x: 0.65, y: -1.7, z: -2.60 }, { x: 0.4, y: 0.5, z: 0.3 }, 0); // Window
       
-      loadModel('models/window.glb', { x: 0.65, y: -1.7, z: -3.65 }, { x: 0.4, y: 0.5, z: 0.3 }, 0); // Window
+      loadModel('/models/window1.glb', { x: 0.65, y: -1.7, z: -3.65 }, { x: 0.4, y: 0.5, z: 0.3 }, 0); // Window
 
       loadModel('models/pot.glb', { x: 3.95, y: 1.50, z: 0 }, { x: 2, y: 2, z: 2 }, 4.65); // Pot
 
@@ -163,7 +164,8 @@
         createRoom();
 
 
-         //  Clicking
+
+         //  Klikanje
 
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -215,14 +217,14 @@
 
 
  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- // Arrow Moving
+ // Dvizhenje so Strelki
 
        
         window.addEventListener('click', onMouseClick);
 
         let draggableObjects = [];
         scene.traverse((child) => {
-            if (child.isMesh && ['sofa', 'smart_tv', 'tv_table'].includes(child.name)) {
+            if (child.isMesh && ['sofa','smart_tv','tv_table'].includes(child.name)) {
                 draggableObjects.push(child); 
             }
         });
